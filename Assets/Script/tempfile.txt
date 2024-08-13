@@ -1,0 +1,17 @@
+    [SerializeField] private TMP_InputField input;
+    // Start is called before the first frame update
+    String A = "";
+    void Start()
+    {
+        input.onValueChanged.AddListener(test);
+    }
+
+    private void test(string arg0)
+    {
+        if (input.text[input.text.Length-1].ToString() != "\n"){
+            A = A + input.text[input.text.Length-1].ToString();
+        }else{
+            Debug.Log(A);
+            A = "";
+        }
+    }
