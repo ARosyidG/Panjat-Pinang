@@ -40,7 +40,7 @@ public class SummonPeserta : MonoBehaviour
         GameObject player = Instantiate(
             playerPrefab,
             new Vector3(
-                transform.position.x+(UnityEngine.Random.Range(-5.0f,5.0f)),
+                transform.position.x+(UnityEngine.Random.Range(-2.0f,2.0f)),
                 transform.position.y+(UnityEngine.Random.Range(0.0f,0.2f)),
                 transform.position.z),
                 new Quaternion()
