@@ -64,6 +64,10 @@ public class TiangSwitch : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(gameManager.tiangsActive.Count <= 1){
+            deactivateButton.interactable = false;
+        }else{
+            deactivateButton.interactable = true;
+        }
     }
 }

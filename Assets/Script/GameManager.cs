@@ -22,7 +22,8 @@ public class GameManager : MonoBehaviour
     Coroutine getLeadingPlayerCotoutine;
     public bool isGameOver = false;
     public List<GameObject> winner;
-    [SerializeField] GameObject podiumArea;
+    [SerializeField] Podium podiumArea;
+    bool isStarted = false;
     void Start(){
         foreach (GameObject tiang in tiangs)
         {
@@ -34,6 +35,7 @@ public class GameManager : MonoBehaviour
 
     private void mulai()
     {
+        isStarted = true;
         listOfPlayers = players.Values.ToList<GameObject>();
         getLeadingPlayerCotoutine = StartCoroutine(getLeadingPlayer());
 
@@ -50,13 +52,11 @@ public class GameManager : MonoBehaviour
                     _player.GetComponent<Player>().kalah();
                 }
             }
-            podiumArea.transform.parent.gameObject.SetActive(true);
-            foreach (GameObject _winner in winner)
-            {
-                GameObject w = Instantiate(_winner, podiumArea.transform);
-                w.transform.position = new Vector3(0,0,0);
-            }
+            // podiumArea.transform.parent.gameObject.SetActive(true);
             // StopAllCoroutines();
+            podiumArea.GetComponent<Canvas>().enabled = true;
+            podiumArea.setPodium(winner);
+            isStarted = false;
         }
     }
     private void tiangDisable(GameObject tiang)
@@ -93,7 +93,10 @@ public class GameManager : MonoBehaviour
                     }else{
                         float leadingPlayerDistance = Vector2.Distance(_leadingPlayer.transform.position, _leadingPlayer.tiang.GetComponent<Tiang>().tiangReward.transform.position);
                         float playerDistance = Vector2.Distance(_player.transform.position, _player.tiang.GetComponent<Tiang>().tiangReward.transform.position);
-                        if(leadingPlayerDistance > playerDistance) _leadingPlayer = _player;
+                        if(leadingPlayerDistance > playerDistance){
+                            _leadingPlayer = _player;
+                            // yield return new WaitForSecondsRealtime(1);
+                        }
                         // Debug.Log(leadingPlayerDistance);
                     }
                 }

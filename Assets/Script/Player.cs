@@ -2,10 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 // using UnityEngine.Random;
 
@@ -17,6 +14,7 @@ public class Player : MonoBehaviour
     private bool isBoost=false;
     private bool isManjat = false;
     private string playerName;
+    public string reward;
     public string PlayerName{
         get{return playerName;}
         set{
@@ -65,6 +63,10 @@ public class Player : MonoBehaviour
         rb.velocity = new Vector2(0,0);
         // rb.bodyType = RigidbodyType2D.Kinematic;
         StopAllCoroutines();
+        if(tiang != null){
+            Debug.Log("setted");
+            reward = tiang.GetComponent<Tiang>().tiangRewardText;
+        }
         // throw new NotImplementedException();s
     }
 
@@ -85,11 +87,11 @@ public class Player : MonoBehaviour
                 leadingPlayerDistance = Vector2.Distance(gameManager.leadingPlayers.transform.position, gameManager.leadingPlayers.GetComponent<Player>().tiang.GetComponent<Tiang>().tiangReward.transform.position);
             }
             if(gameObject != gameManager.leadingPlayers){
-                boostDic["boost"] = 10;
+                boostDic["boost"] = 20;
             }else{
                 boostDic["boost"] = 5;
             }
-            if(leadingPlayerDistance < 7){
+            if(leadingPlayerDistance < 10){
                 if(gameObject != gameManager.leadingPlayers){
                     boostDic["boost"] = 100;
                 }else{
@@ -98,7 +100,8 @@ public class Player : MonoBehaviour
             }
             string result = proTool.getProbability(boostDic);
             if(result == "boost"){
-                this.boost = 100.0f;
+                float boostValue = UnityEngine.Random.Range(90.0f, 150.0f);
+                this.boost = boostValue;
                 isBoost = true;
                 Debug.Log("Boost");
                 yield return new WaitForSecondsRealtime(2);
@@ -147,7 +150,7 @@ public class Player : MonoBehaviour
         if(gameManager.tiangsActive.Count != 0){
             int nomorTiang = UnityEngine.Random.Range(0,gameManager.tiangsActive.Count);
             tiang = gameManager.tiangsActive[nomorTiang];
-            activity = proTool.getProbability(activities);
+            activity = "panjat";
             // Debug.Log(name + " " + activity);
             if(activity == "panjat") activityCourotine = StartCoroutine(WalkToTiang());
         }
@@ -202,9 +205,6 @@ public class Player : MonoBehaviour
         {
             Player _playerComponent = _player.GetComponent<Player>();
             if(_playerComponent.tiang == this.tiang){
-                // Debug.Log( gameObject.name +" "+ _playerComponent.activityCourotine == null);
-                // StopCoroutine(_playerComponent.activityCourotine);
-                // _playerComponent.activityCourotine = StartCoroutine(_playerComponent.Jatuh());
                 _playerComponent.jatuhKan();
             }
         }
@@ -230,7 +230,7 @@ public class Player : MonoBehaviour
         {
             walkSpeed = UnityEngine.Random.Range(75.0f, 125.0f);
             panjatSpeed = UnityEngine.Random.Range(40.0f, 80.0f);
-            float waitTime= UnityEngine.Random.Range(1.0f, 1.5f);
+            float waitTime= UnityEngine.Random.Range(0.5f, 1.5f);
             yield return new WaitForSecondsRealtime(waitTime);
         }
     }
