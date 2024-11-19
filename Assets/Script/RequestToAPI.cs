@@ -6,38 +6,74 @@ using UnityEngine.Networking;
 
 public class RequestToAPI : MonoBehaviour
 {
-    // private String token = "test";
-    // private User loggedUser;
-    void Awake(){
+    void Awake()
+    {
         User u = new User();
         LoginInformation.loggedUser = u;
+
     }
-    void Update(){
-        
-        if(Input.GetKeyDown(KeyCode.U)){
-            StartCoroutine(GetUser(LoginInformation.loggedUser.token));
-        }
-        if(Input.GetKeyDown(KeyCode.I)){
-            // StartCoroutine(AddScore(LoginInformation.loggedUser));
-        }
-        if(Input.GetKeyDown(KeyCode.O)){
-            StartCoroutine(GetScores(LoginInformation.loggedUser));
-        }
+    // void Update()
+    // {
+    //     if (Input.GetKeyDown(KeyCode.Space))
+    //     {
+    //         // StartCoroutine(AddScore(LoginInformation.loggedUser, new ScoreData
+    //         // {
+    //         //     scores = new List<Score>(){
+    //         //     new Score(){
+    //         //         winner = "A",
+    //         //         reward = "A"
+    //         //     },
+    //         //     new Score(){
+    //         //         winner = "B",
+    //         //         reward = "B"
+    //         //     }
+    //         // },
+    //         // }));
+    //         StartCoroutine(GetScores(LoginInformation.loggedUser));
+    //     }
+    // }
+    public void Login()
+    {
+
     }
-    IEnumerator GetUser(String token){
+    public void AddScore(List<GameObject> winners)
+    {
+            ScoreData scores = new ScoreData();
+            foreach (GameObject winner in winners)
+            {
+                scores.scores.Add(new Score(){
+                    winner = winner.GetComponent<Player>().PlayerName,
+                    reward = winner.GetComponent<Player>().reward,
+                });
+            }
+        StartCoroutine(AddScore(LoginInformation.loggedUser, scores));
+    }
+    public void GetScores()
+    {
+
+    }
+    public void GetUser()
+    {
+
+    }
+    public void RegisterUser()
+    {
+
+    }
+    IEnumerator GetUser(String token)
+    {
         string uri = "http://localhost:8099/17an/api/user/current";
-        using(UnityWebRequest request = UnityWebRequest.Get(uri)){
+        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        {
             request.SetRequestHeader("X-API-TOKEN", token);
             yield return request.SendWebRequest();
             WebResponse<User> Data = JsonUtility.FromJson<WebResponse<User>>(request.downloadHandler.text);
-            // Debug.Log(request.downloadHandler.text);
             Debug.Log(request.downloadHandler.text);
-            // loggedUser = Data.data;
             LoginInformation.loggedUser = Data.data;
-
         }
     }
-    IEnumerator AddScore(User user, ScoreData scoreData){
+    IEnumerator AddScore(User user, ScoreData scoreData)
+    {
         string jsonData = JsonUtility.ToJson(scoreData);
         string uri = "http://localhost:8099/17an/api/score";
         UnityWebRequest www = new UnityWebRequest(uri, "POST");
@@ -49,33 +85,31 @@ public class RequestToAPI : MonoBehaviour
         yield return www.SendWebRequest();
         Debug.Log(www.downloadHandler.text);
     }
-    IEnumerator GetScores(User user){
+    IEnumerator GetScores(User user)
+    {
+        Debug.Log("getting score...");
         string uri = "http://localhost:8099/17an/api/score";
-        using(UnityWebRequest request = UnityWebRequest.Get(uri)){
+        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        {
             request.SetRequestHeader("X-API-TOKEN", user.token);
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
-            // WebResponse<User> Data = JsonUtility.FromJson<WebResponse<User>>(request.downloadHandler.text);
-            // Debug.Log(request.downloadHandler.text);
             WebResponse<ScoreData> Data = JsonUtility.FromJson<WebResponse<ScoreData>>(request.downloadHandler.text);
-            // Debug.Log(Data.data.scores.Count);
             LoginInformation.loggedUser.scores = Data.data.scores;
             foreach (Score item in LoginInformation.loggedUser.scores)
             {
-                Debug.Log(item.reward);   
+                Debug.Log($"winner: {item.winner}, reward: {item.reward}");
             }
-            // loggedUser = Data.data;
+
         }
     }
-    IEnumerator Login(String username, String Password){
+    IEnumerator Login(String username, String Password)
+    {
         string uri = "http://localhost:8099/Test";
-        using(UnityWebRequest request = UnityWebRequest.Get(uri)){
-            // request.SetRequestHeader("X-API-TOKEN", "test");
+        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        {
             yield return request.SendWebRequest();
-            // WebResponse<User> Data = JsonUtility.FromJson<WebResponse<User>>(request.downloadHandler.text);
-            // Debug.Log(request.downloadHandler.text);
             Debug.Log(request.downloadHandler.text);
-            // loggedUser = Data.data;
         }
     }
 

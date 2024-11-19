@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngineInternal;
 
 public class GameManager : MonoBehaviour
 {   
@@ -24,6 +25,7 @@ public class GameManager : MonoBehaviour
     public List<GameObject> winner;
     [SerializeField] Podium podiumArea;
     bool isStarted = false;
+    [SerializeField] private RequestToAPI api;
     void Start(){
         foreach (GameObject tiang in tiangs)
         {
@@ -31,8 +33,10 @@ public class GameManager : MonoBehaviour
             tiang.GetComponent<Tiang>().OnDisableEvent += tiangDisable;
         }
         OnGameStart += mulai;
+        if (api == null){
+            api = FindAnyObjectByType<RequestToAPI>(); 
+        }
     }
-
     private void mulai()
     {
         isStarted = true;
@@ -56,6 +60,7 @@ public class GameManager : MonoBehaviour
             // StopAllCoroutines();
             podiumArea.GetComponent<Canvas>().enabled = true;
             podiumArea.setPodium(winner);
+            api.AddScore(winner);
             isStarted = false;
         }
     }

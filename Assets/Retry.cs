@@ -9,6 +9,8 @@ public class Retry : MonoBehaviour
 {
     // Start is called before the first frame update
     Button button;
+
+    [Obsolete]
     void Awake(){
         button = GetComponent<Button>();
         button.onClick.AddListener(mainLagi);
