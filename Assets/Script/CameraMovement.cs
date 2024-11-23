@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
-    private GameManager gameManager;
+    [SerializeField] private GameManager gameManager;
     public Transform target = null;
     public float smoothTime = 1.0f;
     private Vector3 velocity = Vector3.zero;

@@ -9,7 +9,7 @@ public class RequestToAPI : MonoBehaviour
     void Awake()
     {
         User u = new User();
-        LoginInformation.loggedUser = u;
+        LoginInformation.LoggedUser = u;
 
     }
     // void Update()
@@ -29,12 +29,12 @@ public class RequestToAPI : MonoBehaviour
     //         //     }
     //         // },
     //         // }));
-    //         StartCoroutine(GetScores(LoginInformation.loggedUser));
+    //         StartCoroutine(GetScoresRequest(LoginInformation.loggedUser));
     //     }
     // }
     public void Login()
     {
-
+        
     }
     public void AddScore(List<GameObject> winners)
     {
@@ -46,21 +46,18 @@ public class RequestToAPI : MonoBehaviour
                     reward = winner.GetComponent<Player>().reward,
                 });
             }
-        StartCoroutine(AddScore(LoginInformation.loggedUser, scores));
+        StartCoroutine(AddScoreRequest(LoginInformation.LoggedUser, scores));
+        GetScores();
     }
     public void GetScores()
     {
-
-    }
-    public void GetUser()
-    {
-
+        StartCoroutine(GetScoresRequest(LoginInformation.LoggedUser));
     }
     public void RegisterUser()
     {
 
     }
-    IEnumerator GetUser(String token)
+    IEnumerator UpadeteLoggedUser(String token)
     {
         string uri = "http://localhost:8099/17an/api/user/current";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
@@ -69,10 +66,10 @@ public class RequestToAPI : MonoBehaviour
             yield return request.SendWebRequest();
             WebResponse<User> Data = JsonUtility.FromJson<WebResponse<User>>(request.downloadHandler.text);
             Debug.Log(request.downloadHandler.text);
-            LoginInformation.loggedUser = Data.data;
+            LoginInformation.LoggedUser = Data.data;
         }
     }
-    IEnumerator AddScore(User user, ScoreData scoreData)
+    IEnumerator AddScoreRequest(User user, ScoreData scoreData)
     {
         string jsonData = JsonUtility.ToJson(scoreData);
         string uri = "http://localhost:8099/17an/api/score";
@@ -85,7 +82,7 @@ public class RequestToAPI : MonoBehaviour
         yield return www.SendWebRequest();
         Debug.Log(www.downloadHandler.text);
     }
-    IEnumerator GetScores(User user)
+    IEnumerator GetScoresRequest(User user)
     {
         Debug.Log("getting score...");
         string uri = "http://localhost:8099/17an/api/score";
@@ -95,15 +92,15 @@ public class RequestToAPI : MonoBehaviour
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
             WebResponse<ScoreData> Data = JsonUtility.FromJson<WebResponse<ScoreData>>(request.downloadHandler.text);
-            LoginInformation.loggedUser.scores = Data.data.scores;
-            foreach (Score item in LoginInformation.loggedUser.scores)
+            LoginInformation.LoggedUser.scores = Data.data.scores;
+            foreach (Score item in LoginInformation.LoggedUser.scores)
             {
                 Debug.Log($"winner: {item.winner}, reward: {item.reward}");
             }
 
         }
     }
-    IEnumerator Login(String username, String Password)
+    IEnumerator LoginRequest(String username, String Password)
     {
         string uri = "http://localhost:8099/Test";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
