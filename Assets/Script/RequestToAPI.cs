@@ -33,9 +33,13 @@ public class RequestToAPI : MonoBehaviour
     //         StartCoroutine(GetScoresRequest(LoginInformation.loggedUser));
     //     }
     // }
-    public void Login()
+    public void Login(Dictionary<string, TMP_InputField> loginForm, Action<string> OnError)
     {
-
+        StartCoroutine(LoginRequest(
+            loginForm["username"].text,
+            loginForm["password"].text,
+            OnError
+        ));
     }
     public void AddScore(List<GameObject> winners)
     {
@@ -92,8 +96,9 @@ public class RequestToAPI : MonoBehaviour
         {
             request.SetRequestHeader("X-API-TOKEN", token);
             yield return request.SendWebRequest();
-            WebResponse<User> Data = JsonUtility.FromJson<WebResponse<User>>(request.downloadHandler.text);
+            WebResponse<User> Data = JsonConvert.DeserializeObject<WebResponse<User>>(request.downloadHandler.text);
             Debug.Log(request.downloadHandler.text);
+            if (Data.error != null) yield break;
             LoginInformation.LoggedUser = Data.data;
             LoginInformation.LoggedUser.token = token;
             Debug.Log(LoginInformation.LoggedUser.token);
