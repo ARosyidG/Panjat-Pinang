@@ -10,9 +10,12 @@ public static class LoginInformation
         }
         set
         {
-            isLoggedAsGuest = value == null;
             _loggedUser = value;
+            isLoggedAsGuest = _loggedUser == null;
         }
     }
     public static bool isLoggedAsGuest { get; set; }
+    static LoginInformation(){
+        LoggedUser = null;
+    }
 }

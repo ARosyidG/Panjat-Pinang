@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] Podium podiumArea;
     bool isStarted = false;
     [SerializeField] private RequestToAPI api;
+    [SerializeField] private GameObject panjatPinangConfigurator;
     void Start(){
         foreach (GameObject tiang in tiangs)
         {

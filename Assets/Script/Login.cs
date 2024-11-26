@@ -15,6 +15,7 @@ public class Login : MonoBehaviour
     [SerializeField] private RequestToAPI requestToAPI;
     [SerializeField] private Warning warning;
     private event Action<string> OnError;
+    public Action isLogginSuccess;
     public Dictionary<String,TMP_InputField> GetloginForm()
     {
         return _loginForm;
@@ -50,7 +51,7 @@ public class Login : MonoBehaviour
                 return;
             }
         }
-        requestToAPI.Login(_loginForm, OnError);
+        requestToAPI.Login(_loginForm, OnError,isLogginSuccess);
     }
     private void warningHendler(string message){
         warning.gameObject.SetActive(true);

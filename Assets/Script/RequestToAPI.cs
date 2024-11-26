@@ -7,38 +7,13 @@ using UnityEngine;
 using UnityEngine.Networking;
 public class RequestToAPI : MonoBehaviour
 {
-    void Awake()
-    {
-        User u = new User();
-        LoginInformation.LoggedUser = u;
-
-    }
-    // void Update()
-    // {
-    //     if (Input.GetKeyDown(KeyCode.Space))
-    //     {
-    //         // StartCoroutine(AddScore(LoginInformation.loggedUser, new ScoreData
-    //         // {
-    //         //     scores = new List<Score>(){
-    //         //     new Score(){
-    //         //         winner = "A",
-    //         //         reward = "A"
-    //         //     },
-    //         //     new Score(){
-    //         //         winner = "B",
-    //         //         reward = "B"
-    //         //     }
-    //         // },
-    //         // }));
-    //         StartCoroutine(GetScoresRequest(LoginInformation.loggedUser));
-    //     }
-    // }
-    public void Login(Dictionary<string, TMP_InputField> loginForm, Action<string> OnError)
+    public void Login(Dictionary<string, TMP_InputField> loginForm, Action<string> OnError, Action isLogginSuccess)
     {
         StartCoroutine(LoginRequest(
             loginForm["username"].text,
             loginForm["password"].text,
-            OnError
+            OnError,
+            isLogginSuccess
         ));
     }
     public void AddScore(List<GameObject> winners)
@@ -61,16 +36,20 @@ public class RequestToAPI : MonoBehaviour
         if (!LoginInformation.isLoggedAsGuest) return;
         StartCoroutine(GetScoresRequest(LoginInformation.LoggedUser));
     }
-    public void RegisterUser(Dictionary<string, TMP_InputField> registerForm, Action<string> OnError)
+    public void RegisterUser(Dictionary<string, TMP_InputField> registerForm, Action<string> OnError, Action isLogginSuccess)
     {
         RegisterUserRequest registerUserRequest = new RegisterUserRequest()
         {
             username = registerForm["username"].text,
             password = registerForm["password"].text
         };
-        StartCoroutine(RegisterUserRequest(registerUserRequest, OnError));
+        StartCoroutine(RegisterUserRequest(registerUserRequest, OnError, isLogginSuccess));
     }
-    IEnumerator RegisterUserRequest(RegisterUserRequest registerUserRequest, Action<string> OnError)
+    public void Logout(Action<bool> isSucces){
+        if (LoginInformation.isLoggedAsGuest) return;
+        StartCoroutine(LogoutRequest(LoginInformation.LoggedUser.token,isSucces));
+    }
+    IEnumerator RegisterUserRequest(RegisterUserRequest registerUserRequest, Action<string> OnError, Action isLogginSuccess)
     {
         string jsonData = JsonUtility.ToJson(registerUserRequest);
         string uri = "http://localhost:8099/17an/api/user";
@@ -87,9 +66,9 @@ public class RequestToAPI : MonoBehaviour
             Debug.LogError(www.downloadHandler.text);
             yield break;
         }
-        StartCoroutine(LoginRequest(registerUserRequest.username, registerUserRequest.password, OnError));
+        StartCoroutine(LoginRequest(registerUserRequest.username, registerUserRequest.password, OnError, isLogginSuccess));
     }
-    IEnumerator UpadeteLoggedUser(String token)
+    IEnumerator UpadeteLoggedUser(String token, Action isLogginSucces)
     {
         string uri = "http://localhost:8099/17an/api/user/current";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
@@ -101,6 +80,7 @@ public class RequestToAPI : MonoBehaviour
             if (Data.error != null) yield break;
             LoginInformation.LoggedUser = Data.data;
             LoginInformation.LoggedUser.token = token;
+            isLogginSucces.Invoke();
             Debug.Log(LoginInformation.LoggedUser.token);
         }
     }
@@ -135,7 +115,7 @@ public class RequestToAPI : MonoBehaviour
 
         }
     }
-    IEnumerator LoginRequest(String username, String Password, Action<string> OnError)
+    IEnumerator LoginRequest(String username, String Password, Action<string> OnError, Action isLogginSuccess)
     {
         string uri = "http://localhost:8099/17an/api/auth";
         LoginUserRequest loginUserRequest = new LoginUserRequest()
@@ -158,7 +138,21 @@ public class RequestToAPI : MonoBehaviour
             yield break;
         }
         Debug.Log(www.downloadHandler.text);
-        StartCoroutine(UpadeteLoggedUser(Data.data.token));
+        StartCoroutine(UpadeteLoggedUser(Data.data.token, isLogginSuccess));
     }
-
+    IEnumerator LogoutRequest(string token, Action<bool> isSucces){
+        string uri = "http://localhost:8099/17an/api/auth";
+        using (UnityWebRequest request = UnityWebRequest.Delete(uri))
+        {
+            request.SetRequestHeader("X-API-TOKEN", token);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            yield return request.SendWebRequest();
+            WebResponse<String> Data = JsonConvert.DeserializeObject<WebResponse<String>>(request.downloadHandler.text);
+            Debug.Log(Data.data);
+            if (Data.error != null){
+                yield break;
+            }
+            isSucces.Invoke(true);
+        }
+    }
 }

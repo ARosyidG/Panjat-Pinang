@@ -15,6 +15,7 @@ public class Register : MonoBehaviour
     [SerializeField] private Button registerButton;
     [SerializeField] private RequestToAPI requestToAPI;
     [SerializeField] private Warning warning;
+    [SerializeField] private Login loginComponent;
     private event Action<string> OnError;
     public Dictionary<String,TMP_InputField> GetRegisterForm()
     {
@@ -57,7 +58,7 @@ public class Register : MonoBehaviour
             OnError.Invoke("!!! RePassword Tidak Sesuai");
             return ;
         }
-        requestToAPI.RegisterUser(_registerForm, OnError);
+        requestToAPI.RegisterUser(_registerForm, OnError, loginComponent.isLogginSuccess);
     }
     private void warningHendler(string message){
         warning.gameObject.SetActive(true);
