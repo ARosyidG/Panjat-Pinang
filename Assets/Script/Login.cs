@@ -52,6 +52,7 @@ public class Login : MonoBehaviour
             }
         }
         requestToAPI.Login(_loginForm, OnError,isLogginSuccess);
+        OnError.Invoke("Processing.......");
     }
     private void warningHendler(string message){
         warning.gameObject.SetActive(true);

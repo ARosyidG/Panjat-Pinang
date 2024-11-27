@@ -59,6 +59,7 @@ public class Register : MonoBehaviour
             return ;
         }
         requestToAPI.RegisterUser(_registerForm, OnError, loginComponent.isLogginSuccess);
+        OnError.Invoke("Processing.......");
     }
     private void warningHendler(string message){
         warning.gameObject.SetActive(true);
