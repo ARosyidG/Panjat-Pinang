@@ -7,6 +7,12 @@ using UnityEngine;
 using UnityEngine.Networking;
 public class RequestToAPI : MonoBehaviour
 {
+    Action<List<Score>> test;
+    void Update(){
+        if(!LoginInformation.isLoggedAsGuest && Input.GetKeyDown(KeyCode.Space)){
+            GetScores(test);
+        }
+    }
     public void Login(Dictionary<string, TMP_InputField> loginForm, Action<string> OnError, Action isLogginSuccess)
     {
         StartCoroutine(LoginRequest(
@@ -29,12 +35,12 @@ public class RequestToAPI : MonoBehaviour
             });
         }
         StartCoroutine(AddScoreRequest(LoginInformation.LoggedUser, scores));
-        GetScores();
     }
-    public void GetScores()
+    public void GetScores(Action<List<Score>> isSuccess)
     {
-        if (!LoginInformation.isLoggedAsGuest) return;
-        StartCoroutine(GetScoresRequest(LoginInformation.LoggedUser));
+        if (LoginInformation.isLoggedAsGuest) return;
+        Debug.Log("Getting Score...");
+        StartCoroutine(GetScoresRequest(LoginInformation.LoggedUser, isSuccess));
     }
     public void RegisterUser(Dictionary<string, TMP_InputField> registerForm, Action<string> OnError, Action isLogginSuccess)
     {
@@ -97,7 +103,7 @@ public class RequestToAPI : MonoBehaviour
         yield return www.SendWebRequest();
         Debug.Log(www.downloadHandler.text);
     }
-    IEnumerator GetScoresRequest(User user)
+    IEnumerator GetScoresRequest(User user, Action<List<Score>> isSuccess)
     {
         Debug.Log("getting score...");
         string uri = "http://localhost:8099/17an/api/score";
@@ -106,13 +112,13 @@ public class RequestToAPI : MonoBehaviour
             request.SetRequestHeader("X-API-TOKEN", user.token);
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
-            WebResponse<ScoreData> Data = JsonUtility.FromJson<WebResponse<ScoreData>>(request.downloadHandler.text);
-            LoginInformation.LoggedUser.scores = Data.data.scores;
-            foreach (Score item in LoginInformation.LoggedUser.scores)
-            {
-                Debug.Log($"winner: {item.winner}, reward: {item.reward}");
+            WebResponse<ScoreData> Data = JsonConvert.DeserializeObject<WebResponse<ScoreData>>(request.downloadHandler.text);
+            Debug.Log(request.downloadHandler.text);
+            if (Data.error != null){
+                Debug.LogError(Data.error);
+                yield break;
             }
-
+            isSuccess.Invoke(Data.data.scores);
         }
     }
     IEnumerator LoginRequest(String username, String Password, Action<string> OnError, Action isLogginSuccess)
