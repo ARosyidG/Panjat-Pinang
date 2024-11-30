@@ -13,7 +13,7 @@ public class RequestToAPI : MonoBehaviour
             GetScores(test);
         }
     }
-    public void Login(Dictionary<string, TMP_InputField> loginForm, Action<string> OnError, Action isLogginSuccess)
+    public void Login(Dictionary<string, TMP_InputField> loginForm, Action<string> OnError, Action<bool> isLogginSuccess)
     {
         StartCoroutine(LoginRequest(
             loginForm["username"].text,
@@ -42,7 +42,7 @@ public class RequestToAPI : MonoBehaviour
         Debug.Log("Getting Score...");
         StartCoroutine(GetScoresRequest(LoginInformation.LoggedUser, isSuccess));
     }
-    public void RegisterUser(Dictionary<string, TMP_InputField> registerForm, Action<string> OnError, Action isLogginSuccess)
+    public void RegisterUser(Dictionary<string, TMP_InputField> registerForm, Action<string> OnError, Action<bool> isLogginSuccess)
     {
         RegisterUserRequest registerUserRequest = new RegisterUserRequest()
         {
@@ -55,10 +55,10 @@ public class RequestToAPI : MonoBehaviour
         if (LoginInformation.isLoggedAsGuest) return;
         StartCoroutine(LogoutRequest(LoginInformation.LoggedUser.token,isSucces));
     }
-    IEnumerator RegisterUserRequest(RegisterUserRequest registerUserRequest, Action<string> OnError, Action isLogginSuccess)
+    IEnumerator RegisterUserRequest(RegisterUserRequest registerUserRequest, Action<string> OnError, Action<bool> isLogginSuccess)
     {
         string jsonData = JsonUtility.ToJson(registerUserRequest);
-        string uri = "http://localhost:8099/17an/api/user";
+        string uri = "https://wrong-orsola-ganausi-032007d3.koyeb.app/17an/api/user";
         UnityWebRequest www = new UnityWebRequest(uri, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -66,34 +66,39 @@ public class RequestToAPI : MonoBehaviour
         www.downloadHandler = new DownloadHandlerBuffer();
         yield return www.SendWebRequest();
         WebResponse<string> Data = JsonConvert.DeserializeObject<WebResponse<string>>(www.downloadHandler.text);
+        Debug.Log(Data);
         if (Data.error != null || Data.error == "")   
         {
+            isLogginSuccess.Invoke(false);
             OnError.Invoke(Data.error);
             Debug.LogError(www.downloadHandler.text);
             yield break;
         }
         StartCoroutine(LoginRequest(registerUserRequest.username, registerUserRequest.password, OnError, isLogginSuccess));
     }
-    IEnumerator UpadeteLoggedUser(String token, Action isLogginSucces)
+    IEnumerator UpadeteLoggedUser(String token, Action<bool> isLogginSucces)
     {
-        string uri = "http://localhost:8099/17an/api/user/current";
+        string uri = "https://wrong-orsola-ganausi-032007d3.koyeb.app/17an/api/user/current";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
             request.SetRequestHeader("X-API-TOKEN", token);
             yield return request.SendWebRequest();
             WebResponse<User> Data = JsonConvert.DeserializeObject<WebResponse<User>>(request.downloadHandler.text);
             Debug.Log(request.downloadHandler.text);
-            if (Data.error != null) yield break;
+            if (Data.error != null){
+                isLogginSucces.Invoke(false);
+                yield break;
+            } 
             LoginInformation.LoggedUser = Data.data;
             LoginInformation.LoggedUser.token = token;
-            isLogginSucces.Invoke();
+            isLogginSucces.Invoke(true);
             Debug.Log(LoginInformation.LoggedUser.token);
         }
     }
     IEnumerator AddScoreRequest(User user, ScoreData scoreData)
     {
         string jsonData = JsonUtility.ToJson(scoreData);
-        string uri = "http://localhost:8099/17an/api/score";
+        string uri = "https://wrong-orsola-ganausi-032007d3.koyeb.app/17an/api/score";
         UnityWebRequest www = new UnityWebRequest(uri, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -106,7 +111,7 @@ public class RequestToAPI : MonoBehaviour
     IEnumerator GetScoresRequest(User user, Action<List<Score>> isSuccess)
     {
         Debug.Log("getting score...");
-        string uri = "http://localhost:8099/17an/api/score";
+        string uri = "https://wrong-orsola-ganausi-032007d3.koyeb.app/17an/api/score";
         using (UnityWebRequest request = UnityWebRequest.Get(uri))
         {
             request.SetRequestHeader("X-API-TOKEN", user.token);
@@ -121,9 +126,9 @@ public class RequestToAPI : MonoBehaviour
             isSuccess.Invoke(Data.data.scores);
         }
     }
-    IEnumerator LoginRequest(String username, String Password, Action<string> OnError, Action isLogginSuccess)
+    IEnumerator LoginRequest(String username, String Password, Action<string> OnError, Action<bool> isLogginSuccess)
     {
-        string uri = "http://localhost:8099/17an/api/auth";
+        string uri = "https://wrong-orsola-ganausi-032007d3.koyeb.app/17an/api/auth";
         LoginUserRequest loginUserRequest = new LoginUserRequest()
         {
             username = username,
@@ -139,6 +144,7 @@ public class RequestToAPI : MonoBehaviour
          WebResponse<LoginResponse> Data = JsonConvert.DeserializeObject<WebResponse<LoginResponse>>(www.downloadHandler.text);
         if (Data.error != null || Data.error == "")
         {
+            isLogginSuccess.Invoke(false);
             OnError.Invoke(Data.error);
             Debug.LogError(Data.error);
             yield break;
@@ -147,7 +153,7 @@ public class RequestToAPI : MonoBehaviour
         StartCoroutine(UpadeteLoggedUser(Data.data.token, isLogginSuccess));
     }
     IEnumerator LogoutRequest(string token, Action<bool> isSucces){
-        string uri = "http://localhost:8099/17an/api/auth";
+        string uri = "https://wrong-orsola-ganausi-032007d3.koyeb.app/17an/api/auth";
         using (UnityWebRequest request = UnityWebRequest.Delete(uri))
         {
             request.SetRequestHeader("X-API-TOKEN", token);

@@ -35,7 +35,7 @@ public class AuthUIHandler : MonoBehaviour
     {
         AuthUI.SetActive(false);
         LoginInformation.LoggedUser = null;
-        toMainGame();
+        toMainGame(true);
     }
 
     private void OnRegisterButtonClicked()
@@ -56,8 +56,13 @@ public class AuthUIHandler : MonoBehaviour
         LoginUI.SetActive(false);
         LoginInformation.LoggedUser = null;
     }
-    public void toMainGame()
+    public void toMainGame(bool isLogginSucces)
     {
+        if(!isLogginSucces){
+            LoginUI.GetComponent<Login>().loginButton.interactable = true;
+            RegisterUI.GetComponent<Register>().registerButton.interactable = true;
+            return;
+        }
         LoginUI.GetComponent<Login>().isLogginSuccess -= toMainGame;
         SceneManager.LoadScene("MainGame");
     }

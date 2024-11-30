@@ -12,7 +12,7 @@ public class Register : MonoBehaviour
     private TMP_InputField username;
     private TMP_InputField password;
     private TMP_InputField repassword;
-    [SerializeField] private Button registerButton;
+    public Button registerButton;
     [SerializeField] private RequestToAPI requestToAPI;
     [SerializeField] private Warning warning;
     [SerializeField] private Login loginComponent;
@@ -59,6 +59,7 @@ public class Register : MonoBehaviour
             return ;
         }
         requestToAPI.RegisterUser(_registerForm, OnError, loginComponent.isLogginSuccess);
+        registerButton.interactable = false;
         OnError.Invoke("Processing.......");
     }
     private void warningHendler(string message){

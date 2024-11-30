@@ -11,11 +11,11 @@ public class Login : MonoBehaviour
     private Dictionary<String,TMP_InputField> _loginForm;
     private TMP_InputField username;
     private TMP_InputField password;
-    [SerializeField] private Button loginButton;
+    public Button loginButton;
     [SerializeField] private RequestToAPI requestToAPI;
     [SerializeField] private Warning warning;
     private event Action<string> OnError;
-    public Action isLogginSuccess;
+    public Action<bool> isLogginSuccess;
     public Dictionary<String,TMP_InputField> GetloginForm()
     {
         return _loginForm;
@@ -52,6 +52,7 @@ public class Login : MonoBehaviour
             }
         }
         requestToAPI.Login(_loginForm, OnError,isLogginSuccess);
+        loginButton.interactable = false;
         OnError.Invoke("Processing.......");
     }
     private void warningHendler(string message){
